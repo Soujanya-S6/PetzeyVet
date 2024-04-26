@@ -11,7 +11,7 @@ namespace PetzyVet.Domain.Entities
         public int VetId { get; set; }
         public string LName { get; set; }
         public string FName { get; set; }
-        public int NPINumber { get; set; }
+        public string NPINumber { get; set; }
         public string Username { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
