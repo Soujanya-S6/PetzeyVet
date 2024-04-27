@@ -30,6 +30,7 @@ namespace PetzyVet.Data.Repositories
         public void DeleteVet(int id)
         {
             db.Vets.Remove(db.Vets.Find(id));
+            db.Addresses.Remove(db.Addresses.Find(db.Vets.Find(id).AddressId));
             db.SaveChanges();
         }
 
@@ -59,8 +60,12 @@ namespace PetzyVet.Data.Repositories
 
         public void UpdateVet(Vet vet)
         {
-            db.Entry(vet).State=EntityState.Modified;
-            db.SaveChanges();
+            var existingVet = db.Vets.Find(vet.VetId);
+            if (existingVet != null)
+            {
+                db.Entry(existingVet).CurrentValues.SetValues(vet);
+                db.SaveChanges();
+            }
         }
     }
 }

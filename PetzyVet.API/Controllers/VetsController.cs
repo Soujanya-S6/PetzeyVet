@@ -78,11 +78,21 @@ namespace PetzyVet.API.Controllers
         }
 
         [HttpPatch]
-        public IHttpActionResult EditStatus(int id,[FromBody] bool status)
+        [Route("{id}")]
+        public IHttpActionResult EditStatus(int id, [FromBody] bool status)
         {
-            vetRepository.EditStatus(status, id);
-            return Ok();
+            try
+            {
+                vetRepository.EditStatus(status, id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return InternalServerError();
+            }
         }
+
 
     }
 }
