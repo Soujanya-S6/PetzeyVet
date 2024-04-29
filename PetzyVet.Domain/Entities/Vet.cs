@@ -18,7 +18,7 @@ namespace PetzyVet.Domain.Entities
         public string Speciality { get; set; }
         public string ShortBio { get; set; }
         public bool Status { get; set; }
-        public string Photo { get; set; }
+        public byte[] Photo { get; set; }
         public string Gender { get; set; }
         public DateTime DOB { get; set; }
         public double Rating { get; set; }

@@ -26,29 +26,29 @@
                         VetId = c.Int(nullable: false, identity: true),
                         LName = c.String(),
                         FName = c.String(),
-                        NPINumber = c.Int(nullable: false),
+                        NPINumber = c.String(),
                         Username = c.String(),
                         Phone = c.String(),
                         Email = c.String(),
                         Speciality = c.String(),
                         ShortBio = c.String(),
                         Status = c.Boolean(nullable: false),
-                        Photo = c.String(),
+                        Photo = c.Binary(),
                         Gender = c.String(),
                         DOB = c.DateTime(nullable: false),
                         Rating = c.Double(nullable: false),
-                        Address_AddressId = c.Int(),
+                        AddressId = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.VetId)
-                .ForeignKey("dbo.Addresses", t => t.Address_AddressId)
-                .Index(t => t.Address_AddressId);
+                .ForeignKey("dbo.Addresses", t => t.AddressId, cascadeDelete: true)
+                .Index(t => t.AddressId);
             
         }
         
         public override void Down()
         {
-            DropForeignKey("dbo.Vets", "Address_AddressId", "dbo.Addresses");
-            DropIndex("dbo.Vets", new[] { "Address_AddressId" });
+            DropForeignKey("dbo.Vets", "AddressId", "dbo.Addresses");
+            DropIndex("dbo.Vets", new[] { "AddressId" });
             DropTable("dbo.Vets");
             DropTable("dbo.Addresses");
         }

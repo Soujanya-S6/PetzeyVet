@@ -11,7 +11,12 @@ namespace PetzyVet.Data.Repositories
 {
     public class VetRepository : IVetRepository
     {
-        private VetDbContext db=new VetDbContext();
+        private VetDbContext db;
+        public VetRepository(VetDbContext context)
+        {
+            this.db= context;
+            
+        }
 
         public void AddVet(Vet vet)
         {
