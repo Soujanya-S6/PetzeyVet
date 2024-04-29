@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using Elmah;
 using System.Web;
@@ -17,7 +16,11 @@ namespace PetzyVet.API.Controllers
     [RoutePrefix("api/vets")]
     public class VetsController : ApiController
     {
-        private readonly IVetRepository vetRepository = new VetRepository(new VetDbContext());
+        public IVetRepository vetRepository = new VetRepository(new VetDbContext());
+        public VetsController()
+        {
+            
+        }
 
         private void LogError(string methodName, int? id = null, Exception ex = null)
         {
@@ -99,8 +102,15 @@ namespace PetzyVet.API.Controllers
         {
             try
             {
-                vetRepository.AddVet(vet);
-                return Ok();
+                if (vet != null)
+                {
+                    vetRepository.AddVet(vet);
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
 
             }
             catch (Exception ex)
