@@ -10,5 +10,7 @@ namespace PetzyVet.Domain.DTO
     {
         public int VetId { get; set; }
         public string Name { get; set; }
+        public string Specialization { get; set; }
+        public string ImageUrl { get; set; }
     }
 }
