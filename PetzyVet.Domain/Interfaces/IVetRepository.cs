@@ -1,4 +1,5 @@
-﻿using PetzyVet.Domain.Entities;
+﻿using PetzyVet.Domain.DTO;
+using PetzyVet.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace PetzyVet.Domain.Interfaces
         void DeleteVet(int id);
         void UpdateVet(Vet vet);
         void EditStatus(bool status,int id);
+        List<VetDTO> GetAllVetIdsAndNames();
+        void UpdateRating(int docid, int rating);
 
     }
 }

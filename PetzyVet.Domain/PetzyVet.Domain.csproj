@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="DTO\VetCardDTO.cs" />
+    <Compile Include="DTO\VetDTO.cs" />
     <Compile Include="DTO\VetProfileDTO.cs" />
     <Compile Include="DTO\VetIdNameDTO.cs" />
     <Compile Include="Entities\Address.cs" />

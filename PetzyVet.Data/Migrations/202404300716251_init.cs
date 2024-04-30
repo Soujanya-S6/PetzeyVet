@@ -33,11 +33,12 @@
                         Speciality = c.String(),
                         ShortBio = c.String(),
                         Status = c.Boolean(nullable: false),
-                        Photo = c.Binary(),
+                        Photo = c.String(),
                         Gender = c.String(),
                         DOB = c.DateTime(nullable: false),
                         Rating = c.Double(nullable: false),
                         AddressId = c.Int(nullable: false),
+                        Counter = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.VetId)
                 .ForeignKey("dbo.Addresses", t => t.AddressId, cascadeDelete: true)

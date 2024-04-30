@@ -11,11 +11,12 @@ using System.Web.Http;
 using Elmah;
 using System.Web;
 using System.Web.Http.Cors;
+using Microsoft.AspNet.OData;
 
 namespace PetzyVet.API.Controllers
 {
     [RoutePrefix("api/vets")]
-    [EnableCors(origins: "**", headers: "**", methods: "**")]
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class VetsController : ApiController
     {
         public IVetRepository vetRepository = new VetRepository(new VetDbContext());
@@ -55,9 +56,6 @@ namespace PetzyVet.API.Controllers
         [Route("")]
         public IHttpActionResult GetAllVets()
         {
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 var vets = vetRepository.GetAllVets();
@@ -79,9 +77,6 @@ namespace PetzyVet.API.Controllers
         [Route("{id}")]
         public IHttpActionResult GetVetById(int id)
         {
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 var vet = vetRepository.GetVetById(id);
@@ -94,11 +89,11 @@ namespace PetzyVet.API.Controllers
                 {
                     VetId=vet.VetId,
                     NPINumber=vet.NPINumber,
-                    Name = vet.FName + " " + vet.LName,
-                    NpiNumber = vet.NPINumber,
+                    FName = vet.FName,
+                    LName=vet.LName,
                     Speciality = vet.Speciality,
                     Email = vet.Email,
-                    PhoneNumber = vet.Phone,
+                    Phone = vet.Phone,
                     Photo= vet.Photo
                 });
             }
@@ -113,9 +108,6 @@ namespace PetzyVet.API.Controllers
         [Route("")]
         public IHttpActionResult AddVet([FromBody] Vet vet)
         {
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 if (vet != null)
@@ -136,13 +128,10 @@ namespace PetzyVet.API.Controllers
             }
         }
 
-        [HttpPut]
+        /*[HttpPatch]
         [Route(("{id}"))]
         public IHttpActionResult UpdateVet(int id, [FromBody] Vet vet)
         {
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 if (id != vet.VetId)
@@ -164,15 +153,43 @@ namespace PetzyVet.API.Controllers
                 LogError(nameof(UpdateVet), id, ex);
                 return InternalServerError();
             }
+        }*/
+
+        [HttpPatch]
+        [Route("{id}")]
+        public IHttpActionResult UpdateVet(int id, Delta<Vet> delta)
+        {
+            try
+            {
+                var existingVet = vetRepository.GetVetById(id);
+                if (existingVet == null)
+                {
+                    return NotFound();
+                }
+
+                delta.Patch(existingVet); // Apply changes to the existingVet object
+
+                // Validate the model after applying the changes
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                vetRepository.UpdateVet(existingVet);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                LogError(nameof(UpdateVet), id, ex);
+                return InternalServerError();
+            }
         }
+
 
         [HttpDelete]
         [Route("{id}")]
         public IHttpActionResult DeleteVet(int id)
         {
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 var vet = vetRepository.GetVetById(id);
@@ -192,12 +209,9 @@ namespace PetzyVet.API.Controllers
         }
 
         [HttpPatch]
-        [Route("{id}")]
+        [Route("status/{id}")]
         public IHttpActionResult EditStatus(int id, [FromBody] bool status)
         {
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 vetRepository.EditStatus(status, id);
@@ -214,9 +228,6 @@ namespace PetzyVet.API.Controllers
         [Route("VetDetails")]
         public IHttpActionResult GetVetsByListOfIds([FromBody] List<int> doctorIds)
         {
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 if (doctorIds == null || !doctorIds.Any())
@@ -250,6 +261,78 @@ namespace PetzyVet.API.Controllers
                 LogError(nameof(GetVetsByListOfIds), ex: ex);
                 return InternalServerError();
             }
+        }
+
+        [HttpGet]
+        [Route("full/{id}")]
+        public IHttpActionResult GetFullVetById(int id)
+        {
+            try
+            {
+                var vet = vetRepository.GetVetById(id);
+                if (vet == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(vet);
+            }
+            catch (Exception ex)
+            {
+                LogError(nameof(GetVetById), id, ex);
+                return InternalServerError();
+            }
+        }
+
+
+        [HttpGet]
+        [Route("vetsandids")]
+        public IHttpActionResult GetVetsandIds()
+        {
+            List<VetDTO> vets = vetRepository.GetAllVetIdsAndNames();
+
+            return Ok(vets);
+
+        }
+
+        [HttpPost]
+        [Route("updateRating")]
+        public IHttpActionResult UpdateRating([FromBody] int docId, int rating)
+        {
+            try
+            {
+                vetRepository.UpdateRating(docId, rating);
+                return Ok("Rating Updated");
+            }
+            catch (Exception ex)
+            {
+                LogError(nameof(UpdateRating), ex: ex);
+                return InternalServerError();
+            }
+
+        }
+        [HttpGet]
+        [Route("topRatedVets")]
+        public IHttpActionResult GetTopRatedVets()
+        {
+
+            var allVets = vetRepository.GetAllVets().OrderByDescending(v => v.Rating).Take(4).ToList();
+
+            List<VetCardDTO> topVets = new List<VetCardDTO>();
+            foreach (var vet in allVets)
+            {
+                VetCardDTO vetCardDTO = new VetCardDTO()
+                {
+                    Name = vet.FName + " " + vet.LName,
+                    VetId = vet.VetId,
+                    NPINumber = vet.NPINumber,
+                    PhoneNumber = vet.Phone,
+                    Speciality = vet.Speciality,
+                    Photo = vet.Photo
+                };
+                topVets.Add(vetCardDTO);
+            }
+            return Ok(topVets);
         }
     }
 }

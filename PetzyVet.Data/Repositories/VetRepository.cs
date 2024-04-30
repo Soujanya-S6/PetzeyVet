@@ -1,4 +1,5 @@
-﻿using PetzyVet.Domain.Entities;
+﻿using PetzyVet.Domain.DTO;
+using PetzyVet.Domain.Entities;
 using PetzyVet.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,36 @@ namespace PetzyVet.Data.Repositories
             {
                 db.Entry(existingVet).CurrentValues.SetValues(vet);
                 db.SaveChanges();
+            }
+        }
+
+        public List<VetDTO> GetAllVetIdsAndNames()
+        {
+            // Query the database to get all doctors' IDs and names
+            var vets = db.Vets
+                .Select(v => new VetDTO
+                {
+                    VetId = v.VetId,
+                    Name = v.FName + " " + v.LName
+
+                })
+                .ToList();
+
+            return vets;
+        }
+
+        public void UpdateRating(int docid, int rating)
+        {
+            var doc = db.Vets.Find(docid);
+            if (doc != null)
+            {
+                double sum = doc.Rating * doc.Counter;
+                doc.Counter++;
+                sum += rating;
+                doc.Rating = sum / doc.Counter;
+                db.Entry(doc).State = EntityState.Modified;
+                db.SaveChanges();
+
             }
         }
     }

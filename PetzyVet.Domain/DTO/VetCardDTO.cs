@@ -14,6 +14,6 @@ namespace PetzyVet.Domain.DTO
         public string Name {  get; set; }
         public string PhoneNumber { get; set; }
         public string Speciality { get; set; }
-        public byte[] Photo { get; set; }
+        public string Photo { get; set; }
     }
 }

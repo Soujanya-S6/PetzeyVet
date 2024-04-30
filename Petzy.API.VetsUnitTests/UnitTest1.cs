@@ -460,8 +460,8 @@ namespace PetzyVet.API.Tests.Controllers
             // Arrange
             var doctorIds = new List<int> { 1, 2 };
 
-            var vet1 = new Vet { VetId = 1, FName = "John", LName = "Doe", Speciality = "Dentist", Photo = new byte[] { 0x00, 0x01, 0x02 } };
-            var vet2 = new Vet { VetId = 2, FName = "Jane", LName = "Smith", Speciality = "Surgeon", Photo = new byte[] { 0x03, 0x04, 0x05 } };
+            var vet1 = new Vet { VetId = 1, FName = "John", LName = "Doe", Speciality = "Dentist", Photo = " " };
+            var vet2 = new Vet { VetId = 2, FName = "Jane", LName = "Smith", Speciality = "Surgeon", Photo = " " };
 
             var mockRepository = new Mock<IVetRepository>();
             mockRepository.Setup(x => x.GetVetById(It.IsAny<int>())).Returns<int>(id =>
