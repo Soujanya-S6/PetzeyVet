@@ -52,6 +52,9 @@ namespace PetzyVet.API.Controllers
         [Route("")]
         public IHttpActionResult GetAllVets()
         {
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 var vets = vetRepository.GetAllVets();
