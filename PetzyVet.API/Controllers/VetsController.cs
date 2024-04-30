@@ -10,10 +10,12 @@ using System.Net;
 using System.Web.Http;
 using Elmah;
 using System.Web;
+using System.Web.Http.Cors;
 
 namespace PetzyVet.API.Controllers
 {
     [RoutePrefix("api/vets")]
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class VetsController : ApiController
     {
         public IVetRepository vetRepository = new VetRepository(new VetDbContext());
