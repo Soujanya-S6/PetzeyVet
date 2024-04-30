@@ -8,6 +8,9 @@ namespace PetzyVet.Domain.DTO
 {
     public class VetCardDTO
     {
+        public int VetId { get; set; }
+        public string NPINumber { get; set; }
+
         public string Name {  get; set; }
         public string PhoneNumber { get; set; }
         public string Speciality { get; set; }

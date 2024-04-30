@@ -13,7 +13,7 @@ namespace PetzyVet.Data.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202404290929420_init"; }
+            get { return "202404300503432_init"; }
         }
         
         string IMigrationMetadata.Source

@@ -15,7 +15,7 @@ using System.Web.Http.Cors;
 namespace PetzyVet.API.Controllers
 {
     [RoutePrefix("api/vets")]
-    [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [EnableCors(origins: "**", headers: "**", methods: "**")]
     public class VetsController : ApiController
     {
         public IVetRepository vetRepository = new VetRepository(new VetDbContext());
@@ -32,12 +32,15 @@ namespace PetzyVet.API.Controllers
 
         public List<VetCardDTO> ConvertVetToVetCardDTO(List<Vet> vets)
         {
+            
             List<VetCardDTO> vetCards = new List<VetCardDTO>();
             VetCardDTO vetCardDTO;
             foreach (Vet v in vets)
             {
                 vetCardDTO = new VetCardDTO
                 {
+                    VetId=v.VetId,
+                    NPINumber=v.NPINumber,
                     Name = v.FName + " " + v.LName,
                     PhoneNumber = v.Phone,
                     Speciality = v.Speciality,
@@ -52,6 +55,9 @@ namespace PetzyVet.API.Controllers
         [Route("")]
         public IHttpActionResult GetAllVets()
         {
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 var vets = vetRepository.GetAllVets();
@@ -73,6 +79,9 @@ namespace PetzyVet.API.Controllers
         [Route("{id}")]
         public IHttpActionResult GetVetById(int id)
         {
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 var vet = vetRepository.GetVetById(id);
@@ -83,6 +92,8 @@ namespace PetzyVet.API.Controllers
 
                 return Ok(new VetProfileDTO
                 {
+                    VetId=vet.VetId,
+                    NPINumber=vet.NPINumber,
                     Name = vet.FName + " " + vet.LName,
                     NpiNumber = vet.NPINumber,
                     Speciality = vet.Speciality,
@@ -102,6 +113,9 @@ namespace PetzyVet.API.Controllers
         [Route("")]
         public IHttpActionResult AddVet([FromBody] Vet vet)
         {
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 if (vet != null)
@@ -126,6 +140,9 @@ namespace PetzyVet.API.Controllers
         [Route(("{id}"))]
         public IHttpActionResult UpdateVet(int id, [FromBody] Vet vet)
         {
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 if (id != vet.VetId)
@@ -153,6 +170,9 @@ namespace PetzyVet.API.Controllers
         [Route("{id}")]
         public IHttpActionResult DeleteVet(int id)
         {
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 var vet = vetRepository.GetVetById(id);
@@ -175,6 +195,9 @@ namespace PetzyVet.API.Controllers
         [Route("{id}")]
         public IHttpActionResult EditStatus(int id, [FromBody] bool status)
         {
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 vetRepository.EditStatus(status, id);
@@ -191,6 +214,9 @@ namespace PetzyVet.API.Controllers
         [Route("VetDetails")]
         public IHttpActionResult GetVetsByListOfIds([FromBody] List<int> doctorIds)
         {
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             try
             {
                 if (doctorIds == null || !doctorIds.Any())
@@ -209,6 +235,7 @@ namespace PetzyVet.API.Controllers
                         doctorsDetails.Add(new VetIdNameDTO
                         {
                             VetId = doctor.VetId,
+                            NPINumber= doctor.NPINumber,
                             Name = doctor.FName + " " + doctor.LName,
                             Specialization = doctor.Speciality,
                             Photo = doctor.Photo
