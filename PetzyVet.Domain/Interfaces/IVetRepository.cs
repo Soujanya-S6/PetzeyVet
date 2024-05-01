@@ -18,6 +18,7 @@ namespace PetzyVet.Domain.Interfaces
         void EditStatus(bool status,int id);
         List<VetDTO> GetAllVetIdsAndNames();
         void UpdateRating(int docid, int rating);
-
+        List<string> GetUniqueSpecialties();
+        List<Vet> GetVetsBySpecialty(List<string> specialties);
     }
 }

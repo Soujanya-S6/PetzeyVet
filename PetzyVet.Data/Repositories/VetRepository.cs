@@ -95,5 +95,15 @@ namespace PetzyVet.Data.Repositories
 
             }
         }
+
+        public List<string> GetUniqueSpecialties()
+        {
+            return db.Vets.Select(v => v.Speciality).Distinct().ToList();
+        }
+
+        public List<Vet> GetVetsBySpecialty(List<string> specialties)
+        {
+            return db.Vets.Where(v => specialties.Contains(v.Speciality)).ToList();
+        }
     }
 }

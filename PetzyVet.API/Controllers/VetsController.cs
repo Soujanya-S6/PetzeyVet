@@ -334,5 +334,55 @@ namespace PetzyVet.API.Controllers
             }
             return Ok(topVets);
         }
+
+        [HttpGet]
+        [Route("specialties")]
+        public IHttpActionResult GetUniqueSpecialties()
+        {
+
+            try
+            {
+                var specialties = vetRepository.GetUniqueSpecialties();
+                if (specialties == null || !specialties.Any())
+                {
+                    return NotFound();
+                }
+
+                return Ok(specialties);
+            }
+            catch (Exception ex)
+            {
+                LogError(nameof(GetUniqueSpecialties), ex: ex);
+                return InternalServerError(ex);  // Pass the exception to the InternalServerError for better error handling.
+            }
+        }
+
+
+        [HttpPost]
+        [Route("vetsBySpecialty")]
+        public IHttpActionResult GetVetsBySpecialty([FromBody] List<string> specialties)
+        {
+
+            try
+            {
+                if (specialties == null || !specialties.Any())
+                {
+                    return BadRequest("No specialties provided.");
+                }
+
+                var vets = vetRepository.GetVetsBySpecialty(specialties);
+                if (vets == null || !vets.Any())
+                {
+                    return NotFound();
+                }
+                var vetCards = ConvertVetToVetCardDTO(vets);
+                return Ok(vetCards);
+            }
+            catch (Exception ex)
+            {
+                LogError(nameof(GetVetsBySpecialty), ex: ex);
+                return InternalServerError();
+            }
+        }
     }
 }
