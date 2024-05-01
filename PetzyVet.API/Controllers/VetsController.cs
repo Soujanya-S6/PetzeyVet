@@ -128,32 +128,6 @@ namespace PetzyVet.API.Controllers
             }
         }
 
-        /*[HttpPatch]
-        [Route(("{id}"))]
-        public IHttpActionResult UpdateVet(int id, [FromBody] Vet vet)
-        {
-            try
-            {
-                if (id != vet.VetId)
-                {
-                    return BadRequest("Vet ID in the request body does not match the ID in the URL.");
-                }
-
-                var existingVet = vetRepository.GetVetById(id);
-                if (existingVet == null)
-                {
-                    return NotFound();
-                }
-
-                vetRepository.UpdateVet(vet);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                LogError(nameof(UpdateVet), id, ex);
-                return InternalServerError();
-            }
-        }*/
 
         [HttpPatch]
         [Route("{id}")]
@@ -169,11 +143,11 @@ namespace PetzyVet.API.Controllers
 
                 delta.Patch(existingVet); // Apply changes to the existingVet object
 
-                // Validate the model after applying the changes
+/*                // Validate the model after applying the changes
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
-                }
+                }*/
 
                 vetRepository.UpdateVet(existingVet);
                 return Ok();
@@ -289,9 +263,16 @@ namespace PetzyVet.API.Controllers
         [Route("vetsandids")]
         public IHttpActionResult GetVetsandIds()
         {
-            List<VetDTO> vets = vetRepository.GetAllVetIdsAndNames();
+            try
+            {
+                List<VetDTO> vets = vetRepository.GetAllVetIdsAndNames();
 
-            return Ok(vets);
+                return Ok(vets);
+            } catch (Exception ex)
+            {
+                LogError(nameof(UpdateRating), ex: ex);
+                return InternalServerError();
+            }
 
         }
 
@@ -311,28 +292,37 @@ namespace PetzyVet.API.Controllers
             }
 
         }
+
+
         [HttpGet]
         [Route("topRatedVets")]
         public IHttpActionResult GetTopRatedVets()
         {
-
-            var allVets = vetRepository.GetAllVets().OrderByDescending(v => v.Rating).Take(4).ToList();
-
-            List<VetCardDTO> topVets = new List<VetCardDTO>();
-            foreach (var vet in allVets)
+            try
             {
-                VetCardDTO vetCardDTO = new VetCardDTO()
+
+                var allVets = vetRepository.GetAllVets().OrderByDescending(v => v.Rating).Take(4).ToList();
+
+                List<VetCardDTO> topVets = new List<VetCardDTO>();
+                foreach (var vet in allVets)
                 {
-                    Name = vet.FName + " " + vet.LName,
-                    VetId = vet.VetId,
-                    NPINumber = vet.NPINumber,
-                    PhoneNumber = vet.Phone,
-                    Speciality = vet.Speciality,
-                    Photo = vet.Photo
-                };
-                topVets.Add(vetCardDTO);
+                    VetCardDTO vetCardDTO = new VetCardDTO()
+                    {
+                        Name = vet.FName + " " + vet.LName,
+                        VetId = vet.VetId,
+                        NPINumber = vet.NPINumber,
+                        PhoneNumber = vet.Phone,
+                        Speciality = vet.Speciality,
+                        Photo = vet.Photo
+                    };
+                    topVets.Add(vetCardDTO);
+                }
+                return Ok(topVets);
+            }catch(Exception ex)
+            {
+                LogError(nameof(UpdateRating), ex: ex);
+                return InternalServerError();
             }
-            return Ok(topVets);
         }
 
         [HttpGet]

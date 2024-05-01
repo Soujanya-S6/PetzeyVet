@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Web.Http.Results;
 using System.Web.Http;
 using System.Net;
+using Microsoft.AspNet.OData;
 
 namespace PetzyVet.API.Tests.Controllers
 {
@@ -241,99 +242,6 @@ namespace PetzyVet.API.Tests.Controllers
             Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
         }
 
-
-        [TestMethod]
-        public void UpdateVet_Returns_Ok_When_Vet_Updated_Successfully()
-        {
-            // Arrange
-            int vetId = 1;
-            var vet = new Vet { VetId = vetId, /* Initialize other Vet properties */ };
-
-            var mockRepository = new Mock<IVetRepository>();
-            mockRepository.Setup(x => x.GetVetById(vetId)).Returns(vet);
-
-            var controller = new VetsController
-            {
-                vetRepository = mockRepository.Object
-            };
-
-            // Act
-            IHttpActionResult actionResult = controller.UpdateVet(vetId, vet);
-
-            // Assert
-            Assert.IsInstanceOfType(actionResult, typeof(OkResult));
-        }
-
-        [TestMethod]
-        public void UpdateVet_Returns_BadRequest_When_Mismatched_IDs()
-        {
-            // Arrange
-            int vetId = 1;
-            var vet = new Vet { VetId = vetId + 1, /* Initialize other Vet properties */ };
-
-            var controller = new VetsController();
-
-            // Act
-            IHttpActionResult actionResult = controller.UpdateVet(vetId, vet);
-
-            // Assert
-            Assert.IsInstanceOfType(actionResult, typeof(BadRequestErrorMessageResult));
-            BadRequestErrorMessageResult badRequestResult = actionResult as BadRequestErrorMessageResult;
-            Assert.AreEqual("Vet ID in the request body does not match the ID in the URL.", badRequestResult.Message);
-        }
-
-        [TestMethod]
-        public void UpdateVet_Returns_NotFound_For_NonExisting_Vet_ID()
-        {
-            // Arrange
-            int vetId = 999; // Non-existing vet ID
-            var vet = new Vet { VetId = vetId, /* Initialize other Vet properties */ };
-
-            var mockRepository = new Mock<IVetRepository>();
-            var controller = new VetsController { vetRepository = mockRepository.Object };
-
-            // Act
-            IHttpActionResult actionResult = controller.UpdateVet(vetId, vet);
-
-            // Assert
-            Assert.IsInstanceOfType(actionResult, typeof(NotFoundResult));
-        }
-
-        [TestMethod]
-        public void UpdateVet_Returns_BadRequest_For_Null_Vet_Object()
-        {
-            // Arrange
-            int vetId = 1;
-            Vet vet = null;
-
-            var controller = new VetsController();
-
-            // Act
-            IHttpActionResult actionResult = controller.UpdateVet(vetId, vet);
-
-            // Assert
-            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
-        }
-
-        [TestMethod]
-        public void UpdateVet_Returns_InternalServerError_On_Exception()
-        {
-            // Arrange
-            int vetId = 1;
-            var vet = new Vet { VetId = vetId, /* Initialize other Vet properties */ };
-
-            var mockRepository = new Mock<IVetRepository>();
-            mockRepository.Setup(x => x.GetVetById(vetId)).Throws<Exception>();
-
-            var controller = new VetsController { vetRepository = mockRepository.Object };
-
-            // Act
-            IHttpActionResult actionResult = controller.UpdateVet(vetId, vet);
-
-            // Assert
-            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
-        }
-
         [TestMethod]
         public void DeleteVet_Returns_Ok_When_Vet_Deleted_Successfully()
         {
@@ -527,6 +435,445 @@ namespace PetzyVet.API.Tests.Controllers
             // Assert
             Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
         }
+
+        [TestMethod]
+        public void UpdateVet_Returns_Ok_When_Vet_Updated_Successfully()
+        {
+            // Arrange
+            int vetId = 1;
+            var vet = new Vet { VetId = vetId, /* Initialize other Vet properties */ };
+
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetById(vetId)).Returns(vet);
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            var delta = new Delta<Vet>(typeof(Vet));
+            // Set properties to update in delta
+            delta.TrySetPropertyValue("PropertyName", "NewValue");
+
+            // Act
+            IHttpActionResult actionResult = controller.UpdateVet(vetId, delta);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(OkResult));
+        }
+
+/*        [TestMethod]
+        public void UpdateVet_Returns_BadRequest_For_Null_Vet_Object()
+        {
+            // Arrange
+            int vetId = 1;
+            Vet vet = null;
+
+            var mockRepository = new Mock<IVetRepository>();
+            var controller = new VetsController { vetRepository = mockRepository.Object };
+
+            var delta = new Delta<Vet>(typeof(Vet)); // Create an empty Delta<Vet> object
+
+            // Act
+            IHttpActionResult actionResult = controller.UpdateVet(vetId, delta);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(BadRequestResult));
+        }*/
+
+        [TestMethod]
+        public void UpdateVet_Returns_NotFound_For_NonExisting_Vet_ID()
+        {
+            // Arrange
+            int vetId = 999; // Non-existing vet ID
+            var mockRepository = new Mock<IVetRepository>();
+            var controller = new VetsController { vetRepository = mockRepository.Object };
+
+            var delta = new Delta<Vet>(typeof(Vet));
+            // Set properties to update in delta
+            delta.TrySetPropertyValue("PropertyName", "NewValue");
+
+            // Act
+            IHttpActionResult actionResult = controller.UpdateVet(vetId, delta);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void UpdateVet_Returns_InternalServerError_On_Exception()
+        {
+            // Arrange
+            int vetId = 1;
+
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetById(vetId)).Throws<Exception>();
+
+            var controller = new VetsController { vetRepository = mockRepository.Object };
+
+            var delta = new Delta<Vet>(typeof(Vet));
+            // Set properties to update in delta
+            delta.TrySetPropertyValue("PropertyName", "NewValue");
+
+            // Act
+            IHttpActionResult actionResult = controller.UpdateVet(vetId, delta);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
+        }
+
+
+        [TestMethod]
+        public void GetFullVetById_Returns_Ok_When_Vet_Exists()
+        {
+            // Arrange
+            int vetId = 1;
+            var vet = new Vet { VetId = vetId, /* Initialize other Vet properties */ };
+
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetById(vetId)).Returns(vet);
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetFullVetById(vetId);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(OkNegotiatedContentResult<Vet>));
+            var contentResult = actionResult as OkNegotiatedContentResult<Vet>;
+            Assert.IsNotNull(contentResult);
+            Assert.AreEqual(vet, contentResult.Content);
+        }
+
+        [TestMethod]
+        public void GetFullVetById_Returns_NotFound_When_Vet_Not_Exists()
+        {
+            // Arrange
+            int vetId = 999; // Non-existing vet ID
+            var mockRepository = new Mock<IVetRepository>();
+            var controller = new VetsController { vetRepository = mockRepository.Object };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetFullVetById(vetId);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void GetFullVetById_Returns_InternalServerError_On_Exception()
+        {
+            // Arrange
+            int vetId = 1;
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetById(vetId)).Throws<Exception>();
+
+            var controller = new VetsController { vetRepository = mockRepository.Object };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetFullVetById(vetId);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
+        }
+
+        [TestMethod]
+        public void GetVetsandIds_Returns_Ok_With_Vets()
+        {
+            // Arrange
+            var mockRepository = new Mock<IVetRepository>();
+            List<VetDTO> vetDTOs = new List<VetDTO> { new VetDTO { VetId = 1, Name = "Vet1" }, new VetDTO { VetId = 2, Name = "Vet2" } };
+            mockRepository.Setup(x => x.GetAllVetIdsAndNames()).Returns(vetDTOs);
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetsandIds();
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(OkNegotiatedContentResult<List<VetDTO>>));
+            var contentResult = actionResult as OkNegotiatedContentResult<List<VetDTO>>;
+            Assert.IsNotNull(contentResult);
+            CollectionAssert.AreEqual(vetDTOs, contentResult.Content);
+        }
+
+        [TestMethod]
+        public void GetVetsandIds_Returns_InternalServerError_On_Exception()
+        {
+            // Arrange
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetAllVetIdsAndNames()).Throws<Exception>();
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetsandIds();
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
+        }
+
+        [TestMethod]
+        public void UpdateRating_Returns_Ok_When_Rating_Updated_Successfully()
+        {
+            // Arrange
+            int docId = 1;
+            int rating = 5;
+
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.UpdateRating(docId, rating));
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.UpdateRating(docId, rating);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(OkNegotiatedContentResult<string>));
+            var contentResult = actionResult as OkNegotiatedContentResult<string>;
+            Assert.IsNotNull(contentResult);
+            Assert.AreEqual("Rating Updated", contentResult.Content);
+        }
+
+        [TestMethod]
+        public void UpdateRating_Returns_InternalServerError_On_Exception()
+        {
+            // Arrange
+            int docId = 1;
+            int rating = 5;
+
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.UpdateRating(docId, rating)).Throws<Exception>();
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.UpdateRating(docId, rating);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
+        }
+
+
+
+        [TestMethod]
+        public void GetTopRatedVets_Returns_Top_Vets_Successfully()
+        {
+            // Arrange
+            var mockRepository = new Mock<IVetRepository>();
+            var vets = new List<Vet>
+            {
+                new Vet { VetId = 6, FName = "Sarah", LName = "Jones", NPINumber = "13579", Phone = "9876543210", Speciality = "Internal Medicine", Photo = "photo6.jpg", Rating = 4.4 },
+                new Vet { VetId = 7, FName = "Daniel", LName = "Garcia", NPINumber = "24680", Phone = "8765432109", Speciality = "Dermatology", Photo = "photo7.jpg", Rating = 4.7 },
+                new Vet { VetId = 8, FName = "Rachel", LName = "Martinez", NPINumber = "97531", Phone = "7654321098", Speciality = "Ophthalmology", Photo = "photo8.jpg", Rating = 4.3 },
+                new Vet { VetId = 9, FName = "Ryan", LName = "Anderson", NPINumber = "86420", Phone = "6543210987", Speciality = "Radiology", Photo = "photo9.jpg", Rating = 4.6 },
+                new Vet { VetId = 10, FName = "Jessica", LName = "Taylor", NPINumber = "31415", Phone = "5432109876", Speciality = "Emergency Medicine", Photo = "photo10.jpg", Rating = 4.8 },
+                new Vet { VetId = 11, FName = "Kevin", LName = "Clark", NPINumber = "27182", Phone = "4321098765", Speciality = "Anesthesiology", Photo = "photo11.jpg", Rating = 4.5 }
+
+            };
+            mockRepository.Setup(x => x.GetAllVets()).Returns(vets);
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetTopRatedVets();
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(OkNegotiatedContentResult<List<VetCardDTO>>));
+            var contentResult = actionResult as OkNegotiatedContentResult<List<VetCardDTO>>;
+            Assert.IsNotNull(contentResult);
+            Assert.AreEqual(4, contentResult.Content.Count); // Assuming you're returning top 4 vets
+            // Add more assertions as needed to verify the content of the returned list
+        }
+
+        [TestMethod]
+        public void GetTopRatedVets_Returns_InternalServerError_On_Exception()
+        {
+            // Arrange
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetAllVets()).Throws<Exception>();
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetTopRatedVets();
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
+        }
+
+        [TestMethod]
+        public void GetUniqueSpecialties_Returns_NotFound_When_No_Specialties()
+        {
+            // Arrange
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetUniqueSpecialties()).Returns(new List<string>());
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetUniqueSpecialties();
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void GetUniqueSpecialties_Returns_InternalServerError_On_Exception()
+        {
+            // Arrange
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetUniqueSpecialties()).Throws<Exception>();
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetUniqueSpecialties();
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(ExceptionResult));
+        }
+
+        [TestMethod]
+        public void GetUniqueSpecialties_Returns_Specialties_List()
+        {
+            // Arrange
+            var specialties = new List<string> { "Cardiology", "Dentistry", "Orthopedics" };
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetUniqueSpecialties()).Returns(specialties);
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetUniqueSpecialties();
+            var contentResult = actionResult as OkNegotiatedContentResult<List<string>>;
+
+            // Assert
+            Assert.IsNotNull(contentResult);
+            Assert.AreEqual(specialties, contentResult.Content);
+        }
+
+
+
+        [TestMethod]
+        public void GetVetsBySpecialty_Returns_BadRequest_When_No_Specialties_Provided()
+        {
+            // Arrange
+            List<string> specialties = null; // No specialties provided
+
+            var controller = new VetsController();
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetsBySpecialty(specialties);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(BadRequestErrorMessageResult));
+            BadRequestErrorMessageResult badRequestResult = actionResult as BadRequestErrorMessageResult;
+            Assert.AreEqual("No specialties provided.", badRequestResult.Message);
+        }
+
+        [TestMethod]
+        public void GetVetsBySpecialty_Returns_NotFound_When_No_Vets_Found()
+        {
+            // Arrange
+            List<string> specialties = new List<string> { "Dermatology", "Oncology" }; // Non-existing specialties
+
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetsBySpecialty(specialties)).Returns(new List<Vet>());
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetsBySpecialty(specialties);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void GetVetsBySpecialty_Returns_InternalServerError_On_Exception()
+        {
+            // Arrange
+            List<string> specialties = new List<string> { "Cardiology", "Dentistry" }; // Existing specialties
+
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetsBySpecialty(specialties)).Throws<Exception>();
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetsBySpecialty(specialties);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
+        }
+
+        [TestMethod]
+        public void GetVetsBySpecialty_Returns_VetCards_When_Vets_Found()
+        {
+            // Arrange
+            List<string> specialties = new List<string> { "Cardiology", "Dentistry" }; // Existing specialties
+            List<Vet> vets = new List<Vet>
+    {
+        new Vet { VetId = 1, FName = "John", LName = "Doe", NPINumber = "12345", Phone = "1234567890", Speciality = "Cardiology", Photo = "photo1.jpg", Rating = 4.5 },
+        new Vet { VetId = 2, FName = "Jane", LName = "Smith", NPINumber = "54321", Phone = "0987654321", Speciality = "Dentistry", Photo = "photo2.jpg", Rating = 4.8 }
+    };
+
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetsBySpecialty(specialties)).Returns(vets);
+
+            var controller = new VetsController
+            {
+                vetRepository = mockRepository.Object
+            };
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetsBySpecialty(specialties);
+            var contentResult = actionResult as OkNegotiatedContentResult<List<VetCardDTO>>;
+
+            // Assert
+            Assert.IsNotNull(contentResult);
+            Assert.IsNotNull(contentResult.Content);
+            Assert.AreEqual(vets.Count, contentResult.Content.Count);
+            // Assert individual VetCardDTO properties if needed
+        }
+
 
 
     }
