@@ -124,5 +124,9 @@ namespace PetzyVet.Data.Repositories
         {
             return db.Vets.Where(v=>v.NPINumber==npiNumber).FirstOrDefault();
         }
+        public bool CheckNpiNumber(string Npi)
+        {
+            return db.Vets.Where(v=>v.NPINumber.Equals(Npi)).Any();
+        }
     }
 }
