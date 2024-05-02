@@ -45,6 +45,20 @@ namespace PetzyVet.Data.Repositories
                 db.SaveChanges();
             }
         }
+        public void updatePhoto(int vetId, string photoPath)
+        {
+            var vet = db.Vets.Find(vetId);
+
+            if (vet != null)
+            {
+                // Update the Photo property
+                vet.Photo = photoPath;
+
+                // Optionally, save changes to the database
+                db.SaveChanges();
+            }
+        }
+
 
         public List<Vet> GetAllVets()
         {

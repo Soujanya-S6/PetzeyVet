@@ -12,6 +12,8 @@ using Elmah;
 using System.Web;
 using System.Web.Http.Cors;
 using Microsoft.AspNet.OData;
+using System.IO;
+using System.Net.Http;
 
 namespace PetzyVet.API.Controllers
 {
@@ -30,8 +32,49 @@ namespace PetzyVet.API.Controllers
             Elmah.ErrorLog.GetDefault(HttpContext.Current).Log(new Elmah.Error(ex));
             Console.WriteLine($"Error in {methodName} API{(id.HasValue ? $" for ID: {id}" : "")}: {ex?.Message}");
         }
+        [HttpPost]
+        [Route("upload-photo/{vetId}")]
+        public HttpResponseMessage UploadPhoto(int vetId)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
 
-        public List<VetCardDTO> ConvertVetToVetCardDTO(List<Vet> vets)
+            try
+            {
+                if (!Request.Content.IsMimeMultipartContent())
+                {
+                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+                }
+
+                var httpRequest = HttpContext.Current.Request;
+
+                // Check if files are attached
+                if (httpRequest.Files.Count == 0)
+                {
+                    throw new HttpResponseException(HttpStatusCode.BadRequest);
+                }
+
+                var postedFile = httpRequest.Files[0];
+                var fileName = Path.GetFileName(postedFile.FileName);
+
+                // Save the file
+                var filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), fileName);
+                postedFile.SaveAs(filePath);
+
+                // Update filePath in the database or perform other actions
+                vetRepository.updatePhoto(vetId, filePath);
+                response.StatusCode = HttpStatusCode.OK;
+                response.Content = new StringContent(filePath);
+            }
+            catch (Exception ex)
+            {
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                response.Content = new StringContent("An error occurred: " + ex.Message);
+            }
+
+            return response;
+        }
+    
+    public List<VetCardDTO> ConvertVetToVetCardDTO(List<Vet> vets)
         {
             
             List<VetCardDTO> vetCards = new List<VetCardDTO>();
