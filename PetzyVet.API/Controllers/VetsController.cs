@@ -417,5 +417,25 @@ namespace PetzyVet.API.Controllers
                 return InternalServerError();
             }
         }
+
+        [HttpGet]
+        [Route("npiNumber")]
+        public IHttpActionResult GetVetByNpiNumber(string npiNumber)
+        {
+            try
+            {
+                var vet = vetRepository.GetVetByNpiNumber(npiNumber);
+                if (vet == null)
+                {
+                    return NotFound();
+                }
+                return Ok(vet);
+            }
+            catch (Exception ex)
+            {
+                LogError(nameof(GetVetsBySpecialty), ex: ex);
+                return InternalServerError();
+            }
+        }
     }
 }

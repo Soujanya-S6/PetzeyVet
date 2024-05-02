@@ -82,18 +82,18 @@ namespace PetzyVet.Data.Repositories
 
         public List<VetDTO> GetAllVetIdsAndNames()
         {
-            // Query the database to get all doctors' IDs and names
             var vets = db.Vets
+                .Where(v => v.Status) // Filter where Status is true
                 .Select(v => new VetDTO
                 {
                     VetId = v.VetId,
                     Name = v.FName + " " + v.LName
-
                 })
                 .ToList();
 
             return vets;
         }
+
 
         public void UpdateRating(int docid, int rating)
         {
@@ -118,6 +118,11 @@ namespace PetzyVet.Data.Repositories
         public List<Vet> GetVetsBySpecialty(List<string> specialties)
         {
             return db.Vets.Where(v => specialties.Contains(v.Speciality)).ToList();
+        }
+
+        public Vet GetVetByNpiNumber(string npiNumber)
+        {
+            return db.Vets.Where(v=>v.NPINumber==npiNumber).FirstOrDefault();
         }
     }
 }

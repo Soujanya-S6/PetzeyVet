@@ -11,6 +11,10 @@ using System.Web.Http.Results;
 using System.Web.Http;
 using System.Net;
 using Microsoft.AspNet.OData;
+using System.IO;
+using System.Web;
+using System.Threading.Tasks;
+using System.Net.Http.Headers;
 
 namespace PetzyVet.API.Tests.Controllers
 {
@@ -874,6 +878,59 @@ namespace PetzyVet.API.Tests.Controllers
             // Assert individual VetCardDTO properties if needed
         }
 
+
+        //Added New 02/05/2024
+        [TestMethod]
+        public void GetVetByNpiNumber_Returns_Ok_When_Vet_Found()
+        {
+            // Arrange
+            string npiNumber = "1234567890";
+            var mockRepository = new Mock<IVetRepository>();
+            var vet = new Vet { NPINumber = npiNumber, /* Other properties */ };
+            mockRepository.Setup(x => x.GetVetByNpiNumber(npiNumber)).Returns(vet);
+            var controller = new VetsController();
+            controller.vetRepository = mockRepository.Object; // Inject the mock repository
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetByNpiNumber(npiNumber);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(OkNegotiatedContentResult<Vet>));
+        }
+
+        [TestMethod]
+        public void GetVetByNpiNumber_Returns_NotFound_When_Vet_Not_Found()
+        {
+            // Arrange
+            string npiNumber = "1234567890";
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetByNpiNumber(npiNumber)).Returns((Vet)null);
+            var controller = new VetsController();
+            controller.vetRepository = mockRepository.Object; // Inject the mock repository
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetByNpiNumber(npiNumber);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void GetVetByNpiNumber_Returns_InternalServerError_On_Exception()
+        {
+            // Arrange
+            string npiNumber = "1234567890";
+            var mockRepository = new Mock<IVetRepository>();
+            mockRepository.Setup(x => x.GetVetByNpiNumber(npiNumber)).Throws<Exception>();
+            var controller = new VetsController();
+            controller.vetRepository = mockRepository.Object; // Inject the mock repository
+
+            // Act
+            IHttpActionResult actionResult = controller.GetVetByNpiNumber(npiNumber);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(InternalServerErrorResult));
+        }
 
 
     }

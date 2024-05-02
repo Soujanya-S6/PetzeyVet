@@ -21,5 +21,6 @@ namespace PetzyVet.Domain.Interfaces
         List<string> GetUniqueSpecialties();
         List<Vet> GetVetsBySpecialty(List<string> specialties);
         void updatePhoto(int vetId, string photoPath);
+        Vet GetVetByNpiNumber(string npiNumber);
     }
 }
