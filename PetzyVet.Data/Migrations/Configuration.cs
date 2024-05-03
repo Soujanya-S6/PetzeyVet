@@ -56,8 +56,6 @@
     }
 };
 
-            addresses.ForEach(a => context.Addresses.AddOrUpdate(a));
-
 
 
             var moreVets = new List<Vet>
@@ -77,7 +75,8 @@
         Gender = "Female",
         DOB = new DateTime(1985, 10, 10),
         Rating = 4.2,
-        AddressId = 3 // You need to provide a valid AddressId here
+        //AddressId = 3 // You need to provide a valid AddressId here
+        Address =addresses[0]
     },
     new Vet
     {
@@ -94,7 +93,8 @@
         Gender = "Male",
         DOB = new DateTime(1978, 7, 20),
         Rating = 4.9,
-        AddressId = 4 // You need to provide a valid AddressId here
+        //AddressId = 4 ,// You need to provide a valid AddressId here
+        Address=addresses[1]
     },
     new Vet
     {
@@ -111,7 +111,8 @@
         Gender = "Female",
         DOB = new DateTime(1982, 4, 5),
         Rating = 4.7,
-        AddressId = 5 // You need to provide a valid AddressId here
+        //AddressId = 5, // You need to provide a valid AddressId here
+        Address=addresses[2]
     },
     new Vet
     {
@@ -128,7 +129,8 @@
         Gender = "Male",
         DOB = new DateTime(1970, 12, 15),
         Rating = 4.6,
-        AddressId = 6 // You need to provide a valid AddressId here
+        //AddressId = 6 ,// You need to provide a valid AddressId here
+        Address=addresses[3]
     },
     new Vet
     {
@@ -145,7 +147,8 @@
         Gender = "Female",
         DOB = new DateTime(1973, 9, 30),
         Rating = 4.3,
-        AddressId = 7 // You need to provide a valid AddressId here
+        //AddressId = 7 // You need to provide a valid AddressId here
+        Address=addresses[4]
     }
 };
 
