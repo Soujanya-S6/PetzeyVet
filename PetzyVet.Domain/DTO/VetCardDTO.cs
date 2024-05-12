@@ -15,5 +15,6 @@ namespace PetzyVet.Domain.DTO
         public string PhoneNumber { get; set; }
         public string Speciality { get; set; }
         public string Photo { get; set; }
+        public string City { get; set; }
     }
 }

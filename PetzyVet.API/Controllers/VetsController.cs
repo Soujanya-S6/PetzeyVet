@@ -115,6 +115,7 @@ namespace PetzyVet.API.Controllers
                     PhoneNumber = v.Phone,
                     Speciality = v.Speciality,
                     Photo = photoUrl,
+                    City=v.Address.City,
 
                 };
                 vetCards.Add(vetCardDTO);
@@ -388,7 +389,8 @@ namespace PetzyVet.API.Controllers
                         NPINumber = vet.NPINumber,
                         PhoneNumber = vet.Phone,
                         Speciality = vet.Speciality,
-                        Photo = photoUrl
+                        Photo = photoUrl,
+                        City=vet.Address.City,
                     };
                     topVets.Add(vetCardDTO);
                 }
