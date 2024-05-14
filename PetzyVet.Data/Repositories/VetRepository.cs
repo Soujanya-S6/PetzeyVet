@@ -27,9 +27,13 @@ namespace PetzyVet.Data.Repositories
 
         public void DeleteVet(int id)
         {
-            db.Vets.Remove(db.Vets.Find(id));
-            db.Addresses.Remove(db.Addresses.Find(db.Vets.Find(id).AddressId));
+
+            var vets=db.Vets.Find(id);
+            vets.Status = false;
+            db.Entry(vets).State = EntityState.Modified;
+
             db.SaveChanges();
+           
         }
 
         public void EditStatus(bool status, int id)
